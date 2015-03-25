@@ -38,6 +38,7 @@ import (
 	"os"
 	"strings"
 	"time"
+	"regexp"
 )
 
 var version = "0.0.1"
@@ -189,6 +190,9 @@ func FakeSearch(w http.ResponseWriter, r *http.Request) {
 	// Might want to try passing it to an emulated shell
 
 	// TODO: Parse the attack and make a custom response
+	
+	execCmd := regexp.MustCompile(`exec\((.*)\)`)
+	fmt.Println(execCmd.FindAllString(attack.Payload, -1))
 	
 	response := fmt.Sprintf(`
 	{
