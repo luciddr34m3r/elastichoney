@@ -181,6 +181,15 @@ func FakeNodes(w http.ResponseWriter, r *http.Request) {
 // FakeSearch returns fake search results
 func FakeSearch(w http.ResponseWriter, r *http.Request) {
 	LogRequest(r, "attack")
+	
+	attack := ParseRequest(r)
+	
+	// Before generating the response, lets take a look at attack->payload
+	// See if we can extract some shell commands, potentially by using a regex with the .exec function in java
+	// Might want to try passing it to an emulated shell
+
+	// TODO: Parse the attack and make a custom response
+	
 	response := fmt.Sprintf(`
 	{
         "took" : 6,
@@ -206,8 +215,10 @@ func FakeSearch(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-// LogRequest handles the logging of requests to configurable endpoints
-func LogRequest(r *http.Request, t string) {
+
+// We actually want to pull out these fields so we can potentially send some of them to a sandbox
+// We can use this multiple times
+func ParseRequest(r *http.Request) {
 	r.ParseForm()
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -233,7 +244,18 @@ func LogRequest(r *http.Request, t string) {
 		},
 		SensorIP: Conf.SensorIP,
 		Type:     t,
-	}
+	}  
+	
+	return attack
+	
+}
+
+// LogRequest handles the logging of requests to configurable endpoints
+func LogRequest(r *http.Request, t string) {
+
+	//Get the attack details
+	attack := ParseRequest(r)
+
 	// Convert to JSON
 	as, err := JSONMarshal(attack)
 	if err != nil {
